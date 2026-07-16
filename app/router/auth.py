@@ -4,14 +4,12 @@ load_dotenv()
 import os
 from datetime import timedelta, datetime, timezone
 from typing import Annotated
-
+from app.dependencies import db_dependency
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
 
-from app.database import SessionLocal
 from app.models import Users
 from app.schema import CreateUsers
 
@@ -19,17 +17,6 @@ router = APIRouter(
     prefix="/api/v1/auth",
     tags=["auth"],
 )
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-db_dependency = Annotated[Session, Depends(get_db)]
 
 bcrypt = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")

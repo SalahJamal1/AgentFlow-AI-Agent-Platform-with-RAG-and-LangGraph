@@ -1,10 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, Path, Query, Depends
 from sqlalchemy.orm import joinedload
 
-from app.database import SessionLocal
+from app.dependencies import db_dependency
 from app.models import Conversations, Messages
 from app.router.auth import get_current_user
 from app.schema import CreateConversations, CreateMessages
@@ -16,16 +15,6 @@ router = APIRouter(
     tags=["chats"],
 )
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_user)]
 
 
@@ -58,9 +47,9 @@ def get_conversation(user: user_dependency, db: db_dependency, id: int = Path(gt
 
 @router.post("/")
 def create_conversation(
-    user: user_dependency,
-    db: db_dependency,
-    new_conversation: CreateConversations,
+        user: user_dependency,
+        db: db_dependency,
+        new_conversation: CreateConversations,
 ):
     if not user:
         raise HTTPException(status_code=400, detail="you are not logged in")
@@ -74,11 +63,11 @@ def create_conversation(
 
 @router.post("/{conversation_id}/messages")
 def send_message(
-    user: user_dependency,
-    db: db_dependency,
-    message: CreateMessages,
-    conversation_id: int,
-    deep: bool = Query(False),
+        user: user_dependency,
+        db: db_dependency,
+        message: CreateMessages,
+        conversation_id: int,
+        deep: bool = Query(False),
 ):
     conversation = get_conversation(user, db, conversation_id)
 
@@ -118,9 +107,9 @@ def send_message(
 
 @router.get("/{conversation_id}/messages")
 def get_message(
-    user: user_dependency,
-    db: db_dependency,
-    conversation_id: int,
+        user: user_dependency,
+        db: db_dependency,
+        conversation_id: int,
 ):
     conversation = get_conversation(user, db, conversation_id)
 
