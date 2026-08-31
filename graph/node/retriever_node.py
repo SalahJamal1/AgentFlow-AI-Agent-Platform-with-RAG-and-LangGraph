@@ -7,8 +7,8 @@ from graph.state import GraphState
 def retriever_node(state: GraphState) -> Dict[str, Any]:
     print("--- Retriever ---")
     question = state["question"]
-    document = retriever.invoke(question, k=5)
-    return {"question": question, "documents": document}
+    document = retriever.invoke(question)
+    return {"documents": document}
 
 
 if __name__ == "__main__":

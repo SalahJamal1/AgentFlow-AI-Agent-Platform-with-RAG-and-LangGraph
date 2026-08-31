@@ -6,8 +6,8 @@ import os
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = os.getenv("DATABASE_URL", "")
-DATABASE_NAME = os.getenv("DATABASE_NAME", "")
+DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://root:2025@localhost:3306")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "ai_agent_rag")
 
 engine = create_engine(DATABASE_URL)
 
