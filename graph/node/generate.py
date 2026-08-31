@@ -8,12 +8,12 @@ def generate(state: GraphState) -> Dict[str, Any]:
     print("--- GENERATE ---")
     question = state["question"]
     document = state["documents"]
-    retry_count=state.get("retry_count",0)+1
     generation_results = generation.invoke({"question": question, "context": document})
 
     return {
+        "question": question,
+        "documents": document,
         "generation": generation_results,
-        "retry_count": retry_count
     }
 
 

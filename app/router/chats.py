@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Path, Depends
+from fastapi import APIRouter, HTTPException, Path, Query, Depends
 from sqlalchemy.orm import joinedload
 
 from app.dependencies import db_dependency
@@ -8,6 +8,7 @@ from app.models import Conversations, Messages
 from app.router.auth import get_current_user
 from app.schema import CreateConversations, CreateMessages
 from graph.graph import app
+from graph.graph_deep import app_deep
 
 router = APIRouter(
     prefix="/api/v1/chats",
@@ -66,6 +67,7 @@ def send_message(
         db: db_dependency,
         message: CreateMessages,
         conversation_id: int,
+        deep: bool = Query(False),
 ):
     conversation = get_conversation(user, db, conversation_id)
 
@@ -79,8 +81,9 @@ def send_message(
 
         db.add(user_message)
         db.flush()
+        graph = app_deep if deep else app
 
-        response = app.invoke({"question": message.content})
+        response = graph.invoke({"question": message.content})
 
         ai_message = Messages(
             conversations_id=conversation.id,

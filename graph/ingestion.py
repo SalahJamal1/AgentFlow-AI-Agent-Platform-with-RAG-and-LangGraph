@@ -1,5 +1,4 @@
 import asyncio
-import hashlib
 
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import WebBaseLoader, PyPDFLoader
@@ -15,7 +14,7 @@ vector_store = Chroma(
     persist_directory="chroma_db", collection_name="rag", embedding_function=embedding
 )
 
-retriever = vector_store.as_retriever(search_kwargs={"k": 5})
+retriever = vector_store.as_retriever()
 
 urls = [
     "https://lilianweng.github.io/posts/2023-06-23-agent/",
@@ -30,11 +29,6 @@ def web_loader() -> list[Document]:
     return documents
 
 
-def document_idx(document: Document) :
-    source=document.metadata.get("source","")
-    page=document.metadata.get("page","")
-    return hashlib.sha256(f"{source}:{page}:{document.page_content}".encode()).hexdigest()
-
 async def index_document(documents: list[Document]) -> None:
     batches: list[list[Document]] = [
         documents[i : i + 50] for i in range(0, len(documents), 50)
@@ -42,8 +36,7 @@ async def index_document(documents: list[Document]) -> None:
 
     async def add_batch(batch: list[Document], num_batch: int) -> bool:
         try:
-            ids=[document_idx(doc) for doc in batch]
-            await vector_store.aadd_documents(batch,ids=ids)
+            await vector_store.aadd_documents(batch)
             return True
         except Exception as e:
             print(f"Vector store error: batch {num_batch} - {e}")

@@ -20,17 +20,14 @@ router = APIRouter(
 
 bcrypt = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
-SECRET_KEY = os.getenv("SECRET_KEY", None)
-ALGORITHMS = os.getenv("ALGORITHM", None)
-Issuer = os.getenv("ISSUER", None)
-AUDIENCE = os.getenv("AUDIENCE", None)
+SECRET_KEY = os.getenv("SECRET_KEY", "")
+ALGORITHMS = os.getenv("ALGORITHM", "")
+Issuer = os.getenv("ISSUER", "")
+AUDIENCE = os.getenv("AUDIENCE", "")
 
 
 def create_access_token(user: Users):
     expires = datetime.now(timezone.utc) + timedelta(minutes=30)
-
-    if not SECRET_KEY or not ALGORITHMS or not Issuer or not AUDIENCE:
-        raise HTTPException(status_code=400, detail="The encoded is required")
 
     encoded = {
         "sub": user.email,
