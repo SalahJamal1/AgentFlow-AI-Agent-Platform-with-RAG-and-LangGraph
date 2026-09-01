@@ -21,7 +21,8 @@ def web_search(state: GraphState) -> Dict[str, Any]:
         documents.append(results_joined)
     else:
         documents = [results_joined]
-    return {"question": question, "documents": documents}
+    websearch_count = state.get("websearch_count", 0) + 1
+    return {"question": question, "documents": documents, "websearch_count": websearch_count}
 
 
 if __name__ == "__main__":

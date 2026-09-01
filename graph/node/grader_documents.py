@@ -8,13 +8,14 @@ def grader_documents(state: GraphState) -> Dict[str, Any]:
     print("--- GRADER DOCUMENTS ---")
 
     question = state["question"]
-    documents = state["documents"]
+    documents = state.get("documents",[])
+
     web_search = False
     filter_documents = []
 
     for document in documents:
         score: GradeDocuments = retriever_chain.invoke(
-            {"question": question, "document": documents}
+            {"question": question, "document": document}
         )
         grade = score.binary_score
         if grade.lower() == "yes":

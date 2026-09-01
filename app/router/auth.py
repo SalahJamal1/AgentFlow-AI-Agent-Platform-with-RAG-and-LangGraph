@@ -19,7 +19,7 @@ router = APIRouter(
 )
 
 bcrypt = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 SECRET_KEY = os.getenv("SECRET_KEY", "")
 ALGORITHMS = os.getenv("ALGORITHM", "")
 Issuer = os.getenv("ISSUER", "")
@@ -44,7 +44,7 @@ def create_access_token(user: Users):
     )
 
 
-def get_current_user(token: str):
+def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     try:
 
         payload = jwt.decode(

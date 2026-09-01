@@ -1,20 +1,10 @@
 import asyncio
+import hashlib
 
-from langchain_chroma import Chroma
 from langchain_community.document_loaders import WebBaseLoader, PyPDFLoader
 from langchain_core.documents import Document
-from langchain_ollama import OllamaEmbeddings
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-    chunk_size=500, chunk_overlap=100
-)
-embedding = OllamaEmbeddings(model="nomic-embed-text")
-vector_store = Chroma(
-    persist_directory="chroma_db", collection_name="rag", embedding_function=embedding
-)
-
-retriever = vector_store.as_retriever()
+from graph.rag.vector_store import vector_store,splitter
 
 urls = [
     "https://lilianweng.github.io/posts/2023-06-23-agent/",
@@ -22,6 +12,13 @@ urls = [
     "https://lilianweng.github.io/posts/2023-10-25-adv-attack-llm/",
 ]
 
+
+def document_idx(document:Document) -> str:
+    page=document.metadata.get("page")
+    source=document.metadata.get("source")
+    page_content=document.page_content
+
+    return hashlib.sha256(f"{source}:{page}:{page_content}".encode("utf-8")).hexdigest()
 
 def web_loader() -> list[Document]:
     sub_list = [WebBaseLoader(url).load() for url in urls]
@@ -36,7 +33,8 @@ async def index_document(documents: list[Document]) -> None:
 
     async def add_batch(batch: list[Document], num_batch: int) -> bool:
         try:
-            await vector_store.aadd_documents(batch)
+            ids=[document_idx(document) for document in batch]
+            await vector_store.aadd_documents(batch,ids)
             return True
         except Exception as e:
             print(f"Vector store error: batch {num_batch} - {e}")
