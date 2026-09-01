@@ -1,0 +1,27 @@
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	retrieve(retrieve)
+	mcp(mcp)
+	websearch(websearch)
+	grade_documents(grade_documents)
+	generate(generate)
+	__end__([<p>__end__</p>]):::last
+	__start__ -.-> mcp;
+	__start__ -.-> retrieve;
+	__start__ -.-> websearch;
+	generate -. &nbsp;useful&nbsp; .-> __end__;
+	generate -. &nbsp;not useful&nbsp; .-> websearch;
+	grade_documents -.-> generate;
+	grade_documents -.-> websearch;
+	mcp --> generate;
+	retrieve --> grade_documents;
+	websearch --> grade_documents;
+	generate -. &nbsp;not supported&nbsp; .-> generate;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc

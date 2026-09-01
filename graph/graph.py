@@ -75,7 +75,9 @@ builder.add_conditional_edges(
 
 app = builder.compile()
 if __name__ == "__main__":
-    app.get_graph().draw_mermaid_png(output_file_path="graph.png")
+    m=app.get_graph().draw_mermaid()
+    with open("flow.mmd", "w",encoding="utf-8") as f:
+        f.write(m)
 
     result = app.invoke(
         {
